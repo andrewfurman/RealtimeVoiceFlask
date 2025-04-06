@@ -1,3 +1,4 @@
+
 import os
 import requests
 from flask import Flask, render_template, jsonify, request
@@ -15,7 +16,7 @@ def load_system_prompt():
     except Exception as e:
         print(f"Error loading system prompt: {e}")
         return None
-</old_str>
+
 OPENAI_REALTIME_MODEL = "gpt-4o-realtime-preview-2024-12-17" # Use the model specified in the docs
 OPENAI_SESSION_URL = "https://api.openai.com/v1/realtime/sessions"
 
