@@ -104,15 +104,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 // You'll need to parse event.data (likely JSON) and handle different event types
                  try {
                      const messageData = JSON.parse(event.data);
+                     // Example: Handle transcription or text events
                      if (messageData.type === 'text') {
                          console.log("Received text:", messageData.text);
-                         statusDiv.textContent = `Assistant: ${messageData.text}`;
+                         // Update UI or handle text as needed
                      } else if (messageData.type === 'transcription_update') {
                          console.log("Transcription:", messageData.transcription);
-                         statusDiv.textContent = `You: ${messageData.transcription}`;
-                     } else if (messageData.type === 'system') {
-                         console.log("System message:", messageData.text);
-                         statusDiv.textContent = `System: ${messageData.text}`;
+                         // Update UI with live transcription
                      }
                      // Add more handlers for other event types (e.g., 'audio', 'error', 'function_call')
                  } catch (e) {

@@ -1,4 +1,3 @@
-
 import os
 import requests
 from flask import Flask, render_template, jsonify, request
@@ -7,16 +6,6 @@ from flask import Flask, render_template, jsonify, request
 # It's highly recommended to load sensitive keys from environment variables
 # Ensure OPENAI_API_KEY is set in your environment
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-
-def load_system_prompt():
-    """Load the system prompt from markdown file."""
-    try:
-        with open('static/system_prompt.md', 'r') as f:
-            return f.read()
-    except Exception as e:
-        print(f"Error loading system prompt: {e}")
-        return None
-
 OPENAI_REALTIME_MODEL = "gpt-4o-realtime-preview-2024-12-17" # Use the model specified in the docs
 OPENAI_SESSION_URL = "https://api.openai.com/v1/realtime/sessions"
 
@@ -42,15 +31,10 @@ def get_session_token():
         "Authorization": f"Bearer {OPENAI_API_KEY}",
         "Content-Type": "application/json",
     }
-    # Load the system prompt
-    system_prompt = load_system_prompt()
-    if not system_prompt:
-        return jsonify({"error": "Failed to load system prompt"}), 500
-
+    # You can customize the voice and other parameters here if needed
     payload = {
         "model": OPENAI_REALTIME_MODEL,
-        "voice": "verse",
-        "system_prompt": system_prompt,
+        "voice": "verse", # Example voice, choose one appropriate for your model
     }
 
     try:
