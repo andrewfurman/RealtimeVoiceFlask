@@ -1,3 +1,4 @@
+// static/script.js
 // This JavaScript File Is Used To Interact With The ChatGPT Real Time Voice Model
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -28,17 +29,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             const sessionData = await tokenResponse.json();
             const EPHEMERAL_KEY = sessionData.client_secret?.value; // Use optional chaining
-            const REALTIME_MODEL = sessionData.model; // Get model from session data
+            // Use the model specified in the session response or fallback if needed
+            const REALTIME_MODEL = sessionData.model || "gpt-4o-realtime-preview";
 
             if (!EPHEMERAL_KEY) {
                  throw new Error("Ephemeral key (client_secret.value) not found in session response.");
             }
-            if (!REALTIME_MODEL) {
-                 console.warn("Model not found in session response, using default.");
-                 // Consider setting a default or throwing an error if model is critical
-                 // REALTIME_MODEL = "gpt-4o-realtime-preview-2024-12-17"; // Example default
-            }
-
+            console.log(`Using model: ${REALTIME_MODEL}`);
             console.log('Ephemeral key received.');
 
             // 2. Create a peer connection
@@ -50,33 +47,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (e.streams && e.streams[0]) {
                     remoteAudio.srcObject = e.streams[0];
                     console.log('Assigned remote stream to audio element.');
+                     // Attempt to play audio programmatically after user interaction
+                     remoteAudio.play().catch(e => console.error("Audio play failed:", e));
                 } else {
                      console.warn("Received track event without streams.");
                      // Fallback for older browser compatibility if needed, but less common now
-                     // let inboundStream = new MediaStream();
-                     // inboundStream.addTrack(e.track);
-                     // remoteAudio.srcObject = inboundStream;
                 }
-                 // Attempt to play audio programmatically after user interaction
-                 remoteAudio.play().catch(e => console.error("Audio play failed:", e));
             };
 
             // Handle connection state changes for debugging/status updates
              pc.onconnectionstatechange = event => {
-                 statusDiv.textContent = `Connection State: ${pc.connectionState}`;
-                 console.log(`Peer Connection State: ${pc.connectionState}`);
-                 if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected' || pc.connectionState === 'closed') {
-                     stopChat(); // Clean up if connection drops
-                 }
+                  statusDiv.textContent = `Connection State: ${pc.connectionState}`;
+                  console.log(`Peer Connection State: ${pc.connectionState}`);
+                  if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected' || pc.connectionState === 'closed') {
+                      stopChat(); // Clean up if connection drops
+                  }
              };
 
              pc.onicecandidateerror = event => {
-                console.error("ICE Candidate Error:", event);
-                statusDiv.textContent = `Error: ICE Candidate Error - ${event.errorCode}: ${event.errorText}`;
+                 console.error("ICE Candidate Error:", event);
+                 statusDiv.textContent = `Error: ICE Candidate Error - ${event.errorCode}: ${event.errorText}`;
              };
 
              pc.onicegatheringstatechange = () => console.log(`ICE Gathering State: ${pc.iceGatheringState}`);
-
 
             // 4. Add local audio track for microphone input in the browser
             console.log('Requesting microphone access...');
@@ -88,48 +81,76 @@ document.addEventListener('DOMContentLoaded', function() {
                  console.log('Local audio track added.');
              });
 
-
             // 5. Set up data channel for sending and receiving events
             dc = pc.createDataChannel("oai-events");
             console.log('Data channel created.');
 
             dc.onopen = () => {
                  console.log('Data channel opened.');
-                 statusDiv.textContent = 'Data channel open.';
+                 statusDiv.textContent = 'Data channel open. Ready to chat!';
                  // Example: Send initial configuration or greeting if needed
                  // dc.send(JSON.stringify({ type: 'configure', settings: {} }));
              };
 
+            // =============================================================
+            // === VVVVVVVVVVVV MODIFICATION START VVVVVVVVVVVV ===
+            // =============================================================
             dc.onmessage = (event) => {
-                // Realtime server events appear here!
-                console.log('Data channel message received:', event.data);
-                // You'll need to parse event.data (likely JSON) and handle different event types
-                 try {
-                     const messageData = JSON.parse(event.data);
-                     // Example: Handle transcription or text events
-                     if (messageData.type === 'text') {
-                         console.log("Received text:", messageData.text);
-                         // Update UI or handle text as needed
-                     } else if (messageData.type === 'transcription_update') {
-                         console.log("Transcription:", messageData.transcription);
-                         // Update UI with live transcription
+                // Log the raw message for debugging
+                // console.log('Raw Data channel message received:', event.data);
+
+                try {
+                    const messageData = JSON.parse(event.data);
+
+                    // Log the parsed message type for easier debugging
+                    // console.log(`Parsed message type: ${messageData.type}`);
+
+                    // Check for the specific event that contains the final transcript for an utterance
+                    // Based on OpenAI docs and your transcript_seen.md, 'response.audio_transcript.done' is key.
+                    if (messageData.type === "response.audio_transcript.done" && messageData.transcript) {
+                        console.log("Received final transcript:", messageData.transcript);
+                        // Check if the display function from print_transcript.js exists
+                        if (typeof displayFinalTranscript === 'function') {
+                            // Call the function to add the transcript to the page
+                            displayFinalTranscript(messageData.transcript);
+                        } else {
+                            console.error("displayFinalTranscript function is not defined. Ensure print_transcript.js is loaded correctly before script.js tries to use it.");
+                        }
+                    }
+                     // Add handlers for other potentially useful events if needed
+                     else if (messageData.type === "error") {
+                         console.error("Received error event from Realtime API:", messageData);
+                         statusDiv.textContent = `Error: ${messageData.message || 'Unknown API error'}`;
                      }
-                     // Add more handlers for other event types (e.g., 'audio', 'error', 'function_call')
-                 } catch (e) {
-                     console.error("Failed to parse data channel message:", e, "Raw data:", event.data);
-                 }
+                     else if (messageData.type === "session.created") {
+                         console.log("Session created event received:", messageData.session);
+                     }
+                     // Add more 'else if' blocks here to handle other event types
+                     // (e.g., 'input_audio_buffer.speech_started', 'response.created', etc.)
+                     // if you need to react to them in the UI or logic.
+
+                } catch (e) {
+                    console.error("Failed to parse data channel message or handle event:", e);
+                    console.error("Raw data received:", event.data); // Log raw data on error
+                }
             };
+            // =============================================================
+            // === ^^^^^^^^^^^^ MODIFICATION END ^^^^^^^^^^^^ ===
+            // =============================================================
+
 
              dc.onclose = () => {
                  console.log('Data channel closed.');
-                 statusDiv.textContent = 'Data channel closed.';
+                 // Only update status if the connection isn't already closing/closed
+                 if (pc && pc.connectionState !== 'closed' && pc.connectionState !== 'disconnected') {
+                    statusDiv.textContent = 'Data channel closed.';
+                 }
              };
 
              dc.onerror = (error) => {
                  console.error('Data channel error:', error);
-                 statusDiv.textContent = `Error: Data channel error - ${error.message}`;
+                 statusDiv.textContent = `Error: Data channel error - ${error.message || 'Unknown error'}`;
              };
-
 
             // 6. Start the session using the Session Description Protocol (SDP)
             console.log('Creating SDP offer...');
@@ -161,7 +182,8 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             await pc.setRemoteDescription(answer);
             console.log('Remote description set. WebRTC setup complete.');
-            statusDiv.textContent = 'Connected!';
+            // Status update moved to dc.onopen for better user feedback timing
+            // statusDiv.textContent = 'Connected!';
 
         } catch (error) {
             console.error('Error starting chat:', error);
@@ -175,27 +197,29 @@ document.addEventListener('DOMContentLoaded', function() {
     function stopChat() {
         console.log('Stopping chat...');
         if (dc) {
+            // dc.onclose will handle status update unless connection already closed
             dc.close();
-            dc = null;
-            console.log('Data channel closed.');
+            dc = null; // Nullify after closing
+            console.log('Data channel close initiated.');
         }
         if (pc) {
-            // Stop sending tracks
-            pc.getSenders().forEach(sender => {
-                if (sender.track) {
-                    sender.track.stop();
-                }
-            });
-             // Stop receiving tracks (though srcObject = null is often sufficient)
-             pc.getReceivers().forEach(receiver => {
-                if (receiver.track) {
-                    receiver.track.stop();
-                }
+             // Stop sending tracks
+             pc.getSenders().forEach(sender => {
+                 if (sender.track) {
+                     sender.track.stop();
+                 }
              });
+              // Stop receiving tracks (though srcObject = null is often sufficient)
+              pc.getReceivers().forEach(receiver => {
+                  if (receiver.track) {
+                      receiver.track.stop();
+                  }
+              });
 
+            // pc.onconnectionstatechange handles status update
             pc.close();
-            pc = null;
-            console.log('Peer connection closed.');
+            pc = null; // Nullify after closing
+            console.log('Peer connection close initiated.');
         }
         if (localStream) {
             localStream.getTracks().forEach(track => track.stop());
@@ -204,12 +228,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         // Clear the audio source
          if (remoteAudio) {
-             remoteAudio.srcObject = null;
-             remoteAudio.pause(); // Ensure it's paused
-             remoteAudio.load(); // Reset the element
+            remoteAudio.srcObject = null;
+            remoteAudio.pause(); // Ensure it's paused
+            remoteAudio.load(); // Reset the element
          }
 
-        statusDiv.textContent = 'Disconnected';
+        // Update status definitively if not already handled by events
+        if (statusDiv.textContent !== 'Disconnected') {
+             statusDiv.textContent = 'Disconnected';
+        }
         startButton.disabled = false;
         stopButton.disabled = true;
         console.log('Chat stopped and resources released.');

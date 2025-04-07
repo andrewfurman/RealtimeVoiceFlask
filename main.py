@@ -75,9 +75,24 @@ def get_session_token():
     # Base payload for the session creation
     payload = {
         "model": OPENAI_REALTIME_MODEL,
-        "voice": "alloy", # Example voice, choose one appropriate for your model
-        # Add other session parameters here if needed, e.g., modalities
-        # "modalities": ["audio", "text"] # Uncomment or adjust as needed
+        "voice": "alloy",
+        # "modalities": ["audio", "text"], # Optional: Uncomment/adjust if needed
+
+        # --- Optional: Input Transcription settings ---
+        # Verify the exact parameter name and structure from API docs if you need this.
+        # "input_audio_transcription": {
+        #     "model": "whisper-1",
+        #     # "language": "en"
+        # },
+
+        # --- CORRECT Turn Detection Settings ---
+        "turn_detection": {          # <<< The key MUST be exactly "turn_detection"
+            "type": "semantic_vad",  # Value: type set to semantic_vad
+            "eagerness": "high"      # Value: eagerness set to high
+            # 'create_response': True, # Default, usually no need to specify
+            # 'interrupt_response': True # Default, usually no need to specify
+        }
+        # Add any other required top-level parameters for the specific API endpoint here
     }
 
     # Only add 'instructions' to the payload if the content was read successfully
