@@ -1,6 +1,6 @@
 Realtime API
 
-Betaw
+Beta
 
 ====================
 

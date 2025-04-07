@@ -14,3 +14,19 @@ deploymentTarget = "cloudrun"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[workflows]
+runButton = "Flask Server"
+
+[[workflows.workflow]]
+name = "Flask Server"
+author = 10868327
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pkill -f gunicorn || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "gunicorn --bind 0.0.0.0:5000 main:app"

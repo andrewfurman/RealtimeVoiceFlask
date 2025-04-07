@@ -1,0 +1,1 @@
+// This JavaScript file will be used to display the transcript of what ChatGPT voice agent is saying on the page as it is said by the voice bot.

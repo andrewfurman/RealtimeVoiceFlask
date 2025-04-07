@@ -1,3 +1,5 @@
+// This JavaScript File Is Used To Interact With The ChatGPT Real Time Voice Model
+
 document.addEventListener('DOMContentLoaded', function() {
     const startButton = document.getElementById('startButton');
     const stopButton = document.getElementById('stopButton');
