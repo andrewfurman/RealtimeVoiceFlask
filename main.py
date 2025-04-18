@@ -2,6 +2,7 @@ import os
 import requests
 import json # Added for JSON loading in error handling
 from flask import Flask, render_template, jsonify, request
+from plans.plans_routes import plans_bp
 
 # --- Configuration ---
 # It's highly recommended to load sensitive keys from environment variables
@@ -20,6 +21,7 @@ INSTRUCTIONS_FILENAME = "call_center_guide.md" # Define the filename for instruc
 
 # --- Flask App Initialization ---
 app = Flask(__name__, static_url_path='/static')
+app.register_blueprint(plans_bp)
 
 # --- Helper Function to Read Instructions File ---
 # <<< START MODIFICATION: Update function/comments to be more generic >>>
