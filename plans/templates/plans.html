@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBX Health Plans 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../static/plans.js" defer></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h1 class="text-3xl font-bold text-sky-600 text-center mb-8">
+            Independence Blue Cross 2025 Health Plans
+        </h1>
+
+        <!-- Plan Type Filter -->
+        <div class="mb-8">
+            <div class="flex justify-center space-x-4">
+                <button id="showAll" class="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition">All Plans</button>
+                <button id="showGold" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition">Gold</button>
+                <button id="showSilver" class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition">Silver</button>
+                <button id="showBronze" class="px-4 py-2 bg-amber-700 text-white rounded-lg hover:bg-amber-800 transition">Bronze</button>
+            </div>
+        </div>
+
+        <!-- Plans Container -->
+        <div id="plansContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Plans will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <!-- Plan Card Template -->
+    <template id="planCardTemplate">
+        <div class="bg-white rounded-lg shadow-lg p-6 border border-gray-200 hover:shadow-xl transition">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-800"></h2>
+                <span class="plan-type px-3 py-1 rounded-full text-sm font-medium"></span>
+            </div>
+            <div class="space-y-3 text-sm">
+                <p class="deductible"></p>
+                <p class="pcp-visit"></p>
+                <p class="specialist-visit"></p>
+                <p class="hospital"></p>
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <p class="text-xs text-gray-600 notes"></p>
+                </div>
+            </div>
+        </div>
+    </template>
+</body>
+</html>
