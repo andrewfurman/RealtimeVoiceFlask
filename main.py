@@ -3,6 +3,10 @@ import requests
 import json # Added for JSON loading in error handling
 from flask import Flask, render_template, jsonify, request
 from plans.plans_routes import plans_bp
+from plans.plans_model import Base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+import os
 
 # --- Configuration ---
 # It's highly recommended to load sensitive keys from environment variables
@@ -18,6 +22,16 @@ OPENAI_SESSION_URL = "https://api.openai.com/v1/realtime/sessions"
 INSTRUCTIONS_FILENAME = "call_center_guide.md" # Define the filename for instructions
 # <<< END MODIFICATION >>>
 
+
+# --- Database Initialization ---
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    engine = create_engine(database_url)
+    Base.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    db_session = Session()
+else:
+    print("Warning: DATABASE_URL not found in environment variables")
 
 # --- Flask App Initialization ---
 app = Flask(__name__, static_url_path='/static')
