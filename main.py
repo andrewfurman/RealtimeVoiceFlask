@@ -4,8 +4,9 @@ import json # Added for JSON loading in error handling
 from flask import Flask, render_template, jsonify, request
 from plans.plans_routes import plans_bp
 from plans.plans_model import Base
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import QueuePool
 import os
 
 # --- Configuration ---
@@ -26,7 +27,17 @@ INSTRUCTIONS_FILENAME = "call_center_guide.md" # Define the filename for instruc
 # --- Database Initialization ---
 database_url = os.environ.get('DATABASE_URL')
 if database_url:
-    engine = create_engine(database_url)
+    # Use connection pooling with retry settings
+    engine = create_engine(
+        database_url,
+        poolclass=QueuePool,
+        pool_size=5,
+        max_overflow=10,
+        pool_timeout=30,
+        pool_recycle=1800,  # Recycle connections before Neon's 5-minute timeout
+        pool_pre_ping=True  # Enable connection health checks
+    )
+
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     db_session = Session()

@@ -12,15 +12,17 @@ plans_bp = Blueprint('plans', __name__,
 @contextmanager
 def session_scope():
     """Provide a transactional scope around a series of operations."""
-    from main import db_session
+    from main import Session
+    session = Session()
     try:
-        yield db_session
-        db_session.commit()
-    except:
-        db_session.rollback()
+        yield session
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        print(f"Database error: {str(e)}")
         raise
     finally:
-        db_session.close()
+        session.close()
 
 @plans_bp.route('/')
 def show_plans():
