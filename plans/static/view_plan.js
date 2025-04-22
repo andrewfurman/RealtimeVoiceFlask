@@ -2,18 +2,26 @@
 document.addEventListener('DOMContentLoaded', () => {
     const editButton = document.getElementById('editButton');
     const planForm = document.getElementById('planForm');
-    let isEditing = false;
     const inputElements = planForm.querySelectorAll('input, textarea');
+    let isEditing = false;
+
+    // Initially disable all input fields
+    inputElements.forEach(element => element.disabled = true);
 
     editButton.addEventListener('click', () => {
         isEditing = !isEditing;
+        
         if (isEditing) {
+            // Enable editing
             editButton.innerHTML = '💾 Save Plan';
             editButton.classList.remove('bg-sky-600', 'hover:bg-sky-700');
             editButton.classList.add('bg-green-600', 'hover:bg-green-700');
-            inputElements.forEach(element => element.disabled = false);
+            inputElements.forEach(element => {
+                element.disabled = false;
+                element.classList.add('border-green-300');
+            });
         } else {
-            // Get form data
+            // Save changes
             const planId = document.getElementById('planId').value;
             const formData = {
                 short_name: document.getElementById('shortName').value,
@@ -38,18 +46,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 return response.json();
             })
             .then(data => {
-                // Refresh the page to show updated data
-                window.location.reload();
+                // Disable editing and update UI
+                editButton.innerHTML = '✏️ Edit Plan';
+                editButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+                editButton.classList.add('bg-sky-600', 'hover:bg-sky-700');
+                inputElements.forEach(element => {
+                    element.disabled = true;
+                    element.classList.remove('border-green-300');
+                });
+                
+                // Show success message
+                alert('Plan updated successfully!');
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Failed to update plan. Please try again.');
+                // Keep editing mode on if save failed
+                isEditing = true;
             });
-
-            editButton.innerHTML = '✏️ Edit Plan';
-            editButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-            editButton.classList.add('bg-sky-600', 'hover:bg-sky-700');
-            inputElements.forEach(element => element.disabled = true);
         }
     });
 });
