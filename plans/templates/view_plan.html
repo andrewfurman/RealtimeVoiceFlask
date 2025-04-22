@@ -1,0 +1,64 @@
+
+{% extends "header.html" %}
+{% block content %}
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {% if plan %}
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+                <h1 class="text-2xl font-bold text-sky-600">{{ plan.full_name }}</h1>
+                <p class="mt-1 text-sm text-gray-500">Plan ID: {{ plan.id }}</p>
+            </div>
+            
+            <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+                <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Short Name</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ plan.short_name }}</dd>
+                    </div>
+                    
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Benefits URL</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            {% if plan.summary_of_benefits_url %}
+                            <a href="{{ plan.summary_of_benefits_url }}" target="_blank" class="text-sky-600 hover:text-sky-800">
+                                View Benefits Document
+                            </a>
+                            {% else %}
+                            Not available
+                            {% endif %}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+
+            {% if plan.compressed_summary %}
+            <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+                <div class="mb-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-2">Compressed Summary</h2>
+                    <div class="prose max-w-none text-sm text-gray-700 whitespace-pre-wrap">
+                        {{ plan.compressed_summary }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if plan.summary_of_benefits %}
+            <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+                <div>
+                    <h2 class="text-lg font-medium text-gray-900 mb-2">Full Summary of Benefits</h2>
+                    <div class="prose max-w-none text-sm text-gray-700 whitespace-pre-wrap">
+                        {{ plan.summary_of_benefits }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="text-center">
+            <p class="text-gray-500">Plan not found.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+{% endblock %}
