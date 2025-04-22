@@ -1,1 +1,18 @@
-# Can you create a database model to store plan information? This should have the database ID for the plan, and then it should have a short plan name, and then it should have a full plan name, and then it should also have a column to store the summary of benefits document,  and then it should have a column to store the summary of benefits document URL, and then it should have a column to store the compressed summary of benefits document.  All of the columns should just be a text field in my PostgreSQL database, and I want to manage this database using SQLAlchemy.
+
+from sqlalchemy import Column, String, Text
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+class Plan(Base):
+    __tablename__ = 'plans'
+
+    id = Column(String, primary_key=True)
+    short_name = Column(String, nullable=False)
+    full_name = Column(String, nullable=False)
+    summary_of_benefits = Column(Text)
+    summary_of_benefits_url = Column(Text)
+    compressed_summary = Column(Text)
+
+    def __repr__(self):
+        return f"<Plan(short_name='{self.short_name}', full_name='{self.full_name}')>"
