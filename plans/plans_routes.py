@@ -22,6 +22,7 @@ def view_plan(plan_id):
     from plans.plans_model import Plan
     plan = db_session.query(Plan).filter(Plan.id == plan_id).first()
     return render_template('view_plan.html', plan=plan)
+
 @plans_bp.route('/<plan_id>/update', methods=['POST'])
 def update_plan(plan_id):
     """Route to update a plan's details"""
