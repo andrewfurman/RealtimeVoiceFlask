@@ -84,7 +84,12 @@ document.addEventListener('DOMContentLoaded', () => {
     async function savePlanChanges() {
         const planId = document.getElementById('planId').value;
         const formData = new FormData(planForm);
-        const planData = Object.fromEntries(formData.entries());
+        const planData = {};
+
+        // Extract form data properly
+        formData.forEach((value, key) => {
+            planData[key] = value;
+        });
 
         try {
             const response = await fetch(`/plans/${planId}/update`, {
@@ -95,24 +100,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(planData)
             });
 
-            if (response.ok) {
-                // Disable editing
-                editButton.innerHTML = '✏️ Edit Plan';
-                editButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-                editButton.classList.add('bg-sky-600', 'hover:bg-sky-700');
-                formInputs.forEach(input => input.disabled = true);
-
-                // Update page title with new full name
-                document.getElementById('planTitle').textContent = planData.full_name;
-
-                // Show success message
-                alert('Plan updated successfully!');
-            } else {
-                throw new Error('Failed to update plan');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to update plan');
             }
+
+            const result = await response.json();
+
+            // Disable editing
+            editButton.innerHTML = '✏️ Edit Plan';
+            editButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+            editButton.classList.add('bg-sky-600', 'hover:bg-sky-700');
+            formInputs.forEach(input => input.disabled = true);
+
+            // Update page title with new full name
+            document.getElementById('planTitle').textContent = planData.full_name;
+
+            // Show success message
+            alert('Plan updated successfully!');
+
+            // Reset editing state
+            isEditing = false;
         } catch (error) {
+            console.error('Error updating plan:', error);
             alert('Error updating plan: ' + error.message);
-            // Revert to edit mode on error
+            // Keep in edit mode on error
             isEditing = true;
         }
     }
@@ -140,6 +152,7 @@ function displayPlans(filterType) {
         nameInput.value = plan.name;
         nameInput.disabled = true;
         nameInput.classList.add('w-full', 'p-2', 'border', 'border-gray-300', 'rounded');
+        nameInput.name = 'name'; // added for form submission
         clone.querySelector('h2').replaceWith(nameInput);
 
 
