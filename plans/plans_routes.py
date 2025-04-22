@@ -1,5 +1,5 @@
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request, jsonify
 
 # Create Blueprint
 plans_bp = Blueprint('plans', __name__, 
@@ -22,3 +22,26 @@ def view_plan(plan_id):
     from plans.plans_model import Plan
     plan = db_session.query(Plan).filter(Plan.id == plan_id).first()
     return render_template('view_plan.html', plan=plan)
+@plans_bp.route('/<plan_id>/update', methods=['POST'])
+def update_plan(plan_id):
+    """Route to update a plan's details"""
+    try:
+        from main import db_session
+        from plans.plans_model import Plan
+        
+        plan = db_session.query(Plan).filter(Plan.id == plan_id).first()
+        if not plan:
+            return jsonify({'error': 'Plan not found'}), 404
+
+        data = request.json
+        plan.short_name = data.get('short_name', plan.short_name)
+        plan.full_name = data.get('full_name', plan.full_name)
+        plan.summary_of_benefits = data.get('summary_of_benefits', plan.summary_of_benefits)
+        plan.summary_of_benefits_url = data.get('summary_of_benefits_url', plan.summary_of_benefits_url)
+        plan.compressed_summary = data.get('compressed_summary', plan.compressed_summary)
+
+        db_session.commit()
+        return jsonify({'message': 'Plan updated successfully'}), 200
+    except Exception as e:
+        db_session.rollback()
+        return jsonify({'error': str(e)}), 500

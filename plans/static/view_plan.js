@@ -1,4 +1,3 @@
-
 // Plan data structure based on the guide
 const plans = {
     gold: [
@@ -61,6 +60,62 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('showGold').addEventListener('click', () => displayPlans('gold'));
     document.getElementById('showSilver').addEventListener('click', () => displayPlans('silver'));
     document.getElementById('showBronze').addEventListener('click', () => displayPlans('bronze'));
+
+    const editButton = document.getElementById('editButton');
+    const planForm = document.getElementById('planForm');
+    const formInputs = planForm.querySelectorAll('input, textarea');
+    let isEditing = false;
+
+    editButton.addEventListener('click', () => {
+        isEditing = !isEditing;
+
+        if (isEditing) {
+            // Enable editing
+            editButton.innerHTML = '💾 Save Plan';
+            editButton.classList.remove('bg-sky-600', 'hover:bg-sky-700');
+            editButton.classList.add('bg-green-600', 'hover:bg-green-700');
+            formInputs.forEach(input => input.disabled = false);
+        } else {
+            // Save changes
+            savePlanChanges();
+        }
+    });
+
+    async function savePlanChanges() {
+        const planId = document.getElementById('planId').value;
+        const formData = new FormData(planForm);
+        const planData = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch(`/plans/${planId}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(planData)
+            });
+
+            if (response.ok) {
+                // Disable editing
+                editButton.innerHTML = '✏️ Edit Plan';
+                editButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+                editButton.classList.add('bg-sky-600', 'hover:bg-sky-700');
+                formInputs.forEach(input => input.disabled = true);
+
+                // Update page title with new full name
+                document.getElementById('planTitle').textContent = planData.full_name;
+
+                // Show success message
+                alert('Plan updated successfully!');
+            } else {
+                throw new Error('Failed to update plan');
+            }
+        } catch (error) {
+            alert('Error updating plan: ' + error.message);
+            // Revert to edit mode on error
+            isEditing = true;
+        }
+    }
 });
 
 function displayPlans(filterType) {
@@ -77,16 +132,32 @@ function displayPlans(filterType) {
 
     plansToShow.forEach(plan => {
         const clone = template.content.cloneNode(true);
-        
-        // Set plan details
+
+        // Set plan details  - Modified to include input fields
         clone.querySelector('h2').textContent = plan.name;
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.value = plan.name;
+        nameInput.disabled = true;
+        nameInput.classList.add('w-full', 'p-2', 'border', 'border-gray-300', 'rounded');
+        clone.querySelector('h2').replaceWith(nameInput);
+
+
         clone.querySelector('.plan-type').textContent = plan.type.toUpperCase();
         clone.querySelector('.plan-type').className += ` ${typeColors[plan.type]}`;
-        clone.querySelector('.deductible').textContent = `Deductible: ${plan.deductible}`;
-        clone.querySelector('.pcp-visit').textContent = `PCP Visit: ${plan.pcpVisit}`;
-        clone.querySelector('.specialist-visit').textContent = `Specialist Visit: ${plan.specialistVisit}`;
-        clone.querySelector('.hospital').textContent = `Hospital: ${plan.hospital}`;
-        clone.querySelector('.notes').textContent = `Notes: ${plan.notes}`;
+
+        const inputFields = ['deductible', 'pcpVisit', 'specialistVisit', 'hospital', 'notes'];
+        inputFields.forEach(field => {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = plan[field];
+            input.disabled = true;
+            input.classList.add('w-full', 'p-2', 'border', 'border-gray-300', 'rounded');
+            input.name = field; // added for form submission
+
+            const label = clone.querySelector(`.${field}`);
+            label.parentNode.replaceWith(input);
+        });
 
         container.appendChild(clone);
     });

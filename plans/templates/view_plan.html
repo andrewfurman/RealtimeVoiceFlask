@@ -1,4 +1,3 @@
-
 {% extends "header.html" %}
 {% block content %}
 <body class="bg-gray-50 min-h-screen">
@@ -7,7 +6,7 @@
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
             <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
                 <div>
-                    <h1 class="text-2xl font-bold text-sky-600">{{ plan.full_name }}</h1>
+                    <h1 id="planTitle" class="text-2xl font-bold text-sky-600">{{ plan.full_name }}</h1>
                     <p class="mt-1 text-sm text-gray-500">Plan ID: {{ plan.id }}</p>
                 </div>
                 <button id="editButton" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg transition-colors">
@@ -15,9 +14,54 @@
                 </button>
             </div>
 
+            <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+                <form id="planForm" class="space-y-6">
+                    <input type="hidden" id="planId" value="{{ plan.id }}">
+
+                    <div class="grid grid-cols-1 gap-y-6 sm:grid-cols-2 gap-x-4">
+                        <div>
+                            <label for="shortName" class="block text-sm font-medium text-gray-500">Short Name</label>
+                            <input type="text" id="shortName" name="short_name" value="{{ plan.short_name }}" 
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500"
+                                   disabled>
+                        </div>
+
+                        <div>
+                            <label for="fullName" class="block text-sm font-medium text-gray-500">Full Name</label>
+                            <input type="text" id="fullName" name="full_name" value="{{ plan.full_name }}"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500"
+                                   disabled>
+                        </div>
+
+                        <div>
+                            <label for="benefitsUrl" class="block text-sm font-medium text-gray-500">Benefits URL</label>
+                            <input type="url" id="benefitsUrl" name="summary_of_benefits_url" value="{{ plan.summary_of_benefits_url }}"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500"
+                                   disabled>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="benefitsSummary" class="block text-sm font-medium text-gray-500">Summary of Benefits</label>
+                        <textarea id="benefitsSummary" name="summary_of_benefits" rows="4"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500"
+                                disabled>{{ plan.summary_of_benefits }}</textarea>
+                    </div>
+
+                    <div>
+                        <label for="compressedSummary" class="block text-sm font-medium text-gray-500">Compressed Summary</label>
+                        <textarea id="compressedSummary" name="compressed_summary" rows="3"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500"
+                                disabled>{{ plan.compressed_summary }}</textarea>
+                    </div>
+                </form>
+            </div>
+
             <script>
                 const editButton = document.getElementById('editButton');
+                const planForm = document.getElementById('planForm');
                 let isEditing = false;
+                const inputElements = planForm.querySelectorAll('input, textarea');
 
                 editButton.addEventListener('click', () => {
                     isEditing = !isEditing;
@@ -25,35 +69,16 @@
                         editButton.innerHTML = '💾 Save Plan';
                         editButton.classList.remove('bg-sky-600', 'hover:bg-sky-700');
                         editButton.classList.add('bg-green-600', 'hover:bg-green-700');
+                        inputElements.forEach(element => element.disabled = false);
                     } else {
                         editButton.innerHTML = '✏️ Edit Plan';
                         editButton.classList.remove('bg-green-600', 'hover:bg-green-700');
                         editButton.classList.add('bg-sky-600', 'hover:bg-sky-700');
+                        inputElements.forEach(element => element.disabled = true);
                     }
                 });
             </script>
-            
-            <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
-                <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Short Name</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ plan.short_name }}</dd>
-                    </div>
-                    
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Benefits URL</dt>
-                        <dd class="mt-1 text-sm text-gray-900">
-                            {% if plan.summary_of_benefits_url %}
-                            <a href="{{ plan.summary_of_benefits_url }}" target="_blank" class="text-sky-600 hover:text-sky-800">
-                                View Benefits Document
-                            </a>
-                            {% else %}
-                            Not available
-                            {% endif %}
-                        </dd>
-                    </div>
-                </dl>
-            </div>
+
 
             {% if plan.compressed_summary %}
             <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
