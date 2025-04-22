@@ -10,4 +10,7 @@ plans_bp = Blueprint('plans', __name__,
 @plans_bp.route('/')
 def show_plans():
     """Route to display the plans page"""
-    return render_template('plans.html')
+    from main import db_session
+    from plans.plans_model import Plan
+    plans = db_session.query(Plan).all()
+    return render_template('plans.html', plans=plans)

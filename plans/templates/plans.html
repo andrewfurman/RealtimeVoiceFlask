@@ -4,43 +4,41 @@
 <body class="bg-gray-50 min-h-screen">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 class="text-3xl font-bold text-sky-600 text-center mb-8">
-            Independence Blue Cross 2025 Health Plans
+            Independence Blue Cross Plans Database
         </h1>
 
-        <!-- Plan Type Filter -->
-        <div class="mb-8">
-            <div class="flex justify-center space-x-4">
-                <button id="showAll" class="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition">All Plans</button>
-                <button id="showGold" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition">Gold</button>
-                <button id="showSilver" class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition">Silver</button>
-                <button id="showBronze" class="px-4 py-2 bg-amber-700 text-white rounded-lg hover:bg-amber-800 transition">Bronze</button>
-            </div>
-        </div>
-
-        <!-- Plans Container -->
-        <div id="plansContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Plans will be dynamically inserted here -->
-        </div>
-    </div>
-
-    <!-- Plan Card Template -->
-    <template id="planCardTemplate">
-        <div class="bg-white rounded-lg shadow-lg p-6 border border-gray-200 hover:shadow-xl transition">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-semibold text-gray-800"></h2>
-                <span class="plan-type px-3 py-1 rounded-full text-sm font-medium"></span>
-            </div>
-            <div class="space-y-3 text-sm">
-                <p class="deductible"></p>
-                <p class="pcp-visit"></p>
-                <p class="specialist-visit"></p>
-                <p class="hospital"></p>
-                <div class="mt-4 pt-4 border-t border-gray-200">
-                    <p class="text-xs text-gray-600 notes"></p>
+        <div class="mt-8 flex flex-col">
+            <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+                    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-300">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">Plan ID</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Short Name</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Full Name</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Benefits URL</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                {% for plan in plans %}
+                                <tr>
+                                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-900">{{ plan.id }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{{ plan.short_name }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{{ plan.full_name }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-blue-600 hover:text-blue-800">
+                                        {% if plan.summary_of_benefits_url %}
+                                        <a href="{{ plan.summary_of_benefits_url }}" target="_blank" class="underline">View Benefits</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-    </template>
-    <script src="{{ url_for('static', filename='plans/static/plans.js') }}" defer></script>
+    </div>
 </body>
 {% endblock %}
