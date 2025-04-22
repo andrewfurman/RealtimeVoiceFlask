@@ -57,11 +57,6 @@
                 </form>
             </div>
 
-            
-
-
-            <script src="{{ url_for('static', filename='view_plan.js') }}"></script>
-
             {% if plan.compressed_summary %}
             <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
                 <div class="mb-6">
@@ -91,4 +86,6 @@
         {% endif %}
     </div>
 </body>
+
+<script src="{{ url_for('plans.static', filename='view_plan.js') }}"></script>
 {% endblock %}
