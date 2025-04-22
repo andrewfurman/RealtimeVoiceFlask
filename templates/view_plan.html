@@ -1,1 +1,14 @@
-<script src="{{ url_for('static', filename='view_plan.js') }}"></script>
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Plan {{ plan.id }}</h1>
+    <div>
+        <p>Name: {{ plan.name }}</p>
+        <p>Description: {{ plan.description }}</p>
+        <p>Price: ${{ plan.price }}</p>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('plans.edit_plan', plan_id=plan.id) }}">Edit</a>
+        {% endif %}
+    </div>
+    <script src="{{ url_for('plans.static', filename='view_plan.js') }}"></script>
+</body>
+{% endblock %}

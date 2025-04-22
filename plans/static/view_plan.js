@@ -17,71 +17,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const editButton = document.getElementById('editButton');
     const planForm = document.getElementById('planForm');
-    const formInputs = planForm.querySelectorAll('input, textarea');
+    const planId = document.getElementById('planId').value;
     let isEditing = false;
+    const inputElements = planForm.querySelectorAll('input, textarea');
 
-    editButton.addEventListener('click', () => {
+    editButton.addEventListener('click', async () => {
         isEditing = !isEditing;
 
         if (isEditing) {
-            // Enable editing
+            // Enter edit mode
             editButton.innerHTML = '💾 Save Plan';
             editButton.classList.remove('bg-sky-600', 'hover:bg-sky-700');
             editButton.classList.add('bg-green-600', 'hover:bg-green-700');
-            formInputs.forEach(input => input.disabled = false);
+            inputElements.forEach(element => element.disabled = false);
         } else {
-            // Save changes
-            savePlanChanges();
+            try {
+                // Save changes
+                const formData = {
+                    short_name: document.getElementById('shortName').value,
+                    full_name: document.getElementById('fullName').value,
+                    summary_of_benefits: document.getElementById('benefitsSummary').value,
+                    summary_of_benefits_url: document.getElementById('benefitsUrl').value,
+                    compressed_summary: document.getElementById('compressedSummary').value
+                };
+
+                const response = await fetch(`/plans/${planId}/update`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update plan');
+                }
+
+                // Exit edit mode
+                editButton.innerHTML = '✏️ Edit Plan';
+                editButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+                editButton.classList.add('bg-sky-600', 'hover:bg-sky-700');
+                inputElements.forEach(element => element.disabled = true);
+
+                // Reload the page to show updated data
+                window.location.reload();
+            } catch (error) {
+                console.error('Error updating plan:', error);
+                alert('Error updating plan: ' + error.message);
+                isEditing = true; // Stay in edit mode if there's an error
+            }
         }
     });
-
-    async function savePlanChanges() {
-        const planId = document.getElementById('planId').value;
-        const formData = new FormData(planForm);
-        const planData = {};
-
-        // Extract form data properly
-        formData.forEach((value, key) => {
-            planData[key] = value;
-        });
-
-        try {
-            const response = await fetch(`/plans/${planId}/update`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(planData)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to update plan');
-            }
-
-            const result = await response.json();
-
-            // Disable editing
-            editButton.innerHTML = '✏️ Edit Plan';
-            editButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-            editButton.classList.add('bg-sky-600', 'hover:bg-sky-700');
-            formInputs.forEach(input => input.disabled = true);
-
-            // Update page title with new full name
-            document.getElementById('planTitle').textContent = planData.full_name;
-
-            // Show success message
-            alert('Plan updated successfully!');
-
-            // Reset editing state
-            isEditing = false;
-        } catch (error) {
-            console.error('Error updating plan:', error);
-            alert('Error updating plan: ' + error.message);
-            // Keep in edit mode on error
-            isEditing = true;
-        }
-    }
 });
 
 function displayPlans(filterType) {
