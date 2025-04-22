@@ -57,27 +57,7 @@
                 </form>
             </div>
 
-            <script>
-                const editButton = document.getElementById('editButton');
-                const planForm = document.getElementById('planForm');
-                let isEditing = false;
-                const inputElements = planForm.querySelectorAll('input, textarea');
-
-                editButton.addEventListener('click', () => {
-                    isEditing = !isEditing;
-                    if (isEditing) {
-                        editButton.innerHTML = '💾 Save Plan';
-                        editButton.classList.remove('bg-sky-600', 'hover:bg-sky-700');
-                        editButton.classList.add('bg-green-600', 'hover:bg-green-700');
-                        inputElements.forEach(element => element.disabled = false);
-                    } else {
-                        editButton.innerHTML = '✏️ Edit Plan';
-                        editButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-                        editButton.classList.add('bg-sky-600', 'hover:bg-sky-700');
-                        inputElements.forEach(element => element.disabled = true);
-                    }
-                });
-            </script>
+            
 
 
             {% if plan.compressed_summary %}
