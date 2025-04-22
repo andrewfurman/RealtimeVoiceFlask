@@ -1,49 +1,3 @@
-// Plan data structure based on the guide
-const plans = {
-    gold: [
-        {
-            name: "Keystone HMO Gold Proactive",
-            type: "gold",
-            deductible: "Tier 1: $0, Tier 2: $0, Tier 3: $0",
-            pcpVisit: "Tier 1: $15, Tier 2: $30, Tier 3: $45",
-            specialistVisit: "Tier 1: $40, Tier 2: $60, Tier 3: $80",
-            hospital: "Tier 1: $350/day¹, Tier 2: $700/day¹, Tier 3: $1,100/day¹",
-            notes: "HMO, Tiered Network, Mandatory Generics, Preferred Pharmacy"
-        },
-        {
-            name: "Personal Choice® PPO Gold",
-            type: "gold",
-            deductible: "$0",
-            pcpVisit: "$30",
-            specialistVisit: "$65",
-            hospital: "$750/day¹",
-            notes: "PPO, Standard Pharmacy Network, Most Popular"
-        }
-    ],
-    silver: [
-        {
-            name: "Keystone HMO Silver Proactive",
-            type: "silver",
-            deductible: "Tier 1: $0, Tier 2: $6,000, Tier 3: $6,000",
-            pcpVisit: "Tier 1: $40, Tier 2: $70, Tier 3: $80",
-            specialistVisit: "Tier 1: $90, Tier 2: $140, Tier 3: $150",
-            hospital: "Tier 1: $600/day¹, Tier 2: After ded & $900/day¹, Tier 3: After ded & $1,300/day¹",
-            notes: "HMO, Tiered, Most Popular, Mandatory Generics"
-        }
-    ],
-    bronze: [
-        {
-            name: "Keystone HMO Bronze",
-            type: "bronze",
-            deductible: "$8,500",
-            pcpVisit: "$75 (no deductible)",
-            specialistVisit: "$150 (no deductible)",
-            hospital: "After ded & $700/day¹",
-            notes: "HMO, Most Popular, Mandatory Generics, Preferred Pharmacy"
-        }
-    ]
-};
-
 // Color mapping for plan types
 const typeColors = {
     gold: "bg-yellow-100 text-yellow-800",
@@ -52,7 +6,7 @@ const typeColors = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initial display of all plans
+    // Initial display of all plans -  This will need to be replaced with a fetch call to get data
     displayPlans('all');
 
     // Filter button event listeners
@@ -135,12 +89,17 @@ function displayPlans(filterType) {
     const template = document.getElementById('planCardTemplate');
     container.innerHTML = '';
 
+    // This section needs to be replaced with a fetch call and data rendering logic
+    // Placeholder - replace with actual data fetching and rendering
     let plansToShow = [];
     if (filterType === 'all') {
-        plansToShow = [...plans.gold, ...plans.silver, ...plans.bronze];
+        plansToShow = [{name: "Plan 1", type: "gold", deductible: "100", pcpVisit: "20", specialistVisit: "40", hospital: "500", notes: "Note 1"},
+                       {name: "Plan 2", type: "silver", deductible: "200", pcpVisit: "30", specialistVisit: "60", hospital: "600", notes: "Note 2"},
+                       {name: "Plan 3", type: "bronze", deductible: "300", pcpVisit: "40", specialistVisit: "80", hospital: "700", notes: "Note 3"}];
     } else {
-        plansToShow = plans[filterType];
+        plansToShow = [{name: "Plan 1", type: "gold", deductible: "100", pcpVisit: "20", specialistVisit: "40", hospital: "500", notes: "Note 1"}];
     }
+
 
     plansToShow.forEach(plan => {
         const clone = template.content.cloneNode(true);
