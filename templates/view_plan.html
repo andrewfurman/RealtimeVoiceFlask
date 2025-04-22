@@ -1,0 +1,59 @@
+<!-- view_plan.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>View Plan</title>
+  <script src="view_plan.js" defer></script> </head>
+<body>
+  <form id="planForm">
+    <!-- Your form elements here -->
+    <input type="text" name="planName" value="My Plan" disabled>
+    <textarea name="planDescription" disabled>Plan Description</textarea>
+    </form>
+  <button id="editButton" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded">✏️ Edit Plan</button>
+</body>
+</html>
+
+
+<!-- view_plan.js -->
+const editButton = document.getElementById('editButton');
+const planForm = document.getElementById('planForm');
+let isEditing = false;
+const inputElements = planForm.querySelectorAll('input, textarea');
+
+editButton.addEventListener('click', () => {
+    isEditing = !isEditing;
+    if (isEditing) {
+        editButton.innerHTML = '💾 Save Plan';
+        editButton.classList.remove('bg-sky-600', 'hover:bg-sky-700');
+        editButton.classList.add('bg-green-600', 'hover:bg-green-700');
+        inputElements.forEach(element => element.disabled = false);
+    } else {
+        editButton.innerHTML = '✏️ Edit Plan';
+        editButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+        editButton.classList.add('bg-sky-600', 'hover:bg-sky-700');
+        // Add save functionality here.  This is a placeholder.  Actual implementation depends on your backend and data storage.
+        // Example using fetch:
+        const formData = new FormData(planForm);
+        fetch('/api/savePlan', {
+          method: 'POST',
+          body: formData
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Success - optionally reload the page
+              location.reload();
+            } else {
+              // Handle error
+              console.error('Error saving plan:', data.error);
+            }
+          })
+          .catch(error => {
+            console.error('Error saving plan:', error);
+          });
+
+
+        inputElements.forEach(element => element.disabled = true);
+    }
+});
